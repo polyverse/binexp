@@ -21,6 +21,7 @@ const (
 	RightToLeft                          = 0x0040 // "r"
 	Debug                                = 0x0080 // "d"
 	ECMAScript                           = 0x0100 // "e"
+	ByteRunes                            = 0x0200 // "b"
 )
 
 func optionFromCode(ch rune) RegexOptions {
@@ -42,6 +43,8 @@ func optionFromCode(ch rune) RegexOptions {
 		return Debug
 	case 'e', 'E':
 		return ECMAScript
+	case 'b', 'B':
+		return ByteRunes
 	default:
 		return 0
 	}
@@ -180,14 +183,15 @@ func Parse(re string, op RegexOptions) (*RegexTree, error) {
 }
 
 func (p *parser) setPattern(pattern string) {
-	p.patternRaw = pattern
-	p.pattern = make([]rune, 0, len(pattern))
-
-	//populate our rune array to handle utf8 encoding
-	for _, r := range pattern {
-		p.pattern = append(p.pattern, r)
+	rf := DefaultRuneFunc
+	if p.options&ByteRunes > 0 {
+		rf = ByteRuneFunc
 	}
+
+	p.patternRaw = pattern
+	p.pattern = rf(pattern)
 }
+
 func (p *parser) getErr(code ErrorCode, args ...interface{}) error {
 	return &Error{Code: code, Expr: p.patternRaw, Args: args}
 }

@@ -1,12 +1,12 @@
 /*
-Package regexp2 is a regexp package that has an interface similar to Go's framework regexp engine but uses a
+package binexp is a regexp package that has an interface similar to Go's framework regexp engine but uses a
 more feature full regex engine behind the scenes.
 
 It doesn't have constant time guarantees, but it allows backtracking and is compatible with Perl5 and .NET.
 You'll likely be better off with the RE2 engine from the regexp package and should only use this if you
 need to write very complex patterns or require compatibility with .NET.
 */
-package regexp2
+package binexp
 
 import (
 	"errors"
@@ -15,7 +15,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/dlclark/regexp2/syntax"
+	"github.com/polyverse/binexp/syntax"
 )
 
 // Default timeout used when running regexp matches -- "forever"
@@ -120,6 +120,7 @@ const (
 	RightToLeft                          = 0x0040 // "r"
 	Debug                                = 0x0080 // "d"
 	ECMAScript                           = 0x0100 // "e"
+	ByteRunes                            = 0x0200 // "b"
 )
 
 func (re *Regexp) RightToLeft() bool {
@@ -175,6 +176,15 @@ func (re *Regexp) FindStringMatchStartingAt(s string, startAt int) (*Match, erro
 	}
 
 	return re.run(false, startAt, r)
+}
+
+// FindRunesMatchStartingAt searches the input rune slice for a Regexp match starting at the startAt index
+func (re *Regexp) FindBytesMatchStartingAt(b []byte, startAt int) (*Match, error) {
+	runes := make([]rune, len(b))
+	for idx, bi := range b {
+		runes[idx] = rune(bi)
+	}
+	return re.run(false, startAt, runes)
 }
 
 // FindRunesMatchStartingAt searches the input rune slice for a Regexp match starting at the startAt index

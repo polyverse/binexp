@@ -1,10 +1,10 @@
-package regexp2
+package binexp
 
 import (
 	"bytes"
 	"errors"
 
-	"github.com/dlclark/regexp2/syntax"
+	"github.com/polyverse/binexp/syntax"
 )
 
 const (

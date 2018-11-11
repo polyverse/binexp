@@ -1,4 +1,4 @@
-package regexp2
+package binexp
 
 import (
 	"reflect"
@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/dlclark/regexp2/syntax"
+	"github.com/polyverse/binexp/syntax"
 )
 
 func TestBacktrack_CatastrophicTimeout(t *testing.T) {

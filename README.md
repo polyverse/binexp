@@ -7,7 +7,7 @@ The engine is ported from the .NET framework's System.Text.RegularExpressions.Re
 ## Installing
 This is a go-gettable library, so install is easy:
 
-    go get github.com/dlclark/regexp2/...
+    go get github.com/polyverse/binexp/...
 
 ## Usage
 Usage is similar to the Go `regexp` package.  Just like in `regexp`, you start by converting a regex into a state machine via the `Compile` or `MustCompile` methods.  They ultimately do the same thing, but `MustCompile` will panic if the regex is invalid.  You can then use the provided `Regexp` struct to find matches repeatedly.  A `Regexp` struct is safe to use across goroutines.
