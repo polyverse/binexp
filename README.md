@@ -9,6 +9,15 @@ This is a go-gettable library, so install is easy:
 
     go get github.com/polyverse/binexp/...
 
+## Binary Matching Usage
+
+```go
+re := regexp2.MustCompile([]byte{'Y','o','u','r',' ','b','i','n','a','r','y',' ','p','a','t','t','e','r','n'}, "b")
+if match, _ := re.FindBytesMatchStartingAt([]byte("A string of bytes - particularly executables, and such stuff.")); match != nil {
+    //do something
+}
+```
+
 ## Usage
 Usage is similar to the Go `regexp` package.  Just like in `regexp`, you start by converting a regex into a state machine via the `Compile` or `MustCompile` methods.  They ultimately do the same thing, but `MustCompile` will panic if the regex is invalid.  You can then use the provided `Regexp` struct to find matches repeatedly.  A `Regexp` struct is safe to use across goroutines.
 
