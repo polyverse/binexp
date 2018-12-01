@@ -1,6 +1,7 @@
 package binexp
 
 import (
+	"fmt"
 	"github.com/polyverse/binexp/syntax"
 	"testing"
 )
@@ -153,4 +154,22 @@ func TestRegexByteMatchSuccess(t *testing.T) {
 		t.Errorf("second match expected length 3. Instead got %d.", match.Length)
 	}
 
+}
+
+func TestRegexByteMatchNext(t *testing.T) {
+
+	// Ensure this is a non-UTF-8 compliant string
+	opcode, err := Compile("\xca[\x00-\xff]{2}", syntax.ByteRunes)
+	if err != nil {
+		t.Error(err)
+	}
+
+	rawdata := []byte{0x65, 0xca, 0x05, 0xf4, 0x65, 0xca, 0xaf, 0xca, 0x65, 0xff, 0x15, 0x25}
+	for match, err := opcode.FindBytesMatchStartingAt(rawdata, 0); match != nil; match, err = opcode.FindBytesMatchStartingAt(rawdata, match.Index+1) {
+		if err != nil {
+			t.Error(err)
+		}
+
+		fmt.Printf("%v\n\n", match.Index)
+	}
 }
