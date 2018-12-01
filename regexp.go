@@ -216,6 +216,33 @@ func (re *Regexp) FindNextMatch(m *Match) (*Match, error) {
 	return re.run(false, startAt, m.text)
 }
 
+// FindNextMatch returns the next match in the same input string as the match parameter.
+// Will return nil if there is no next match or if given a nil match.
+func (re *Regexp) FindNextOverlappingMatch(m *Match) (*Match, error) {
+	if m == nil {
+		return nil, nil
+	}
+
+	startAt := m.Index + 1
+	if re.RightToLeft() {
+		startAt = m.Index - 1
+	}
+	// If previous match was empty, advance by one before matching to prevent
+	// infinite loop
+	if m.Length == 0 {
+		if m.textpos == len(m.text) {
+			return nil, nil
+		}
+
+		if re.RightToLeft() {
+			startAt--
+		} else {
+			startAt++
+		}
+	}
+	return re.run(false, startAt, m.text)
+}
+
 // MatchString return true if the string matches the regex
 // error will be set if a timeout occurs
 func (re *Regexp) MatchString(s string) (bool, error) {

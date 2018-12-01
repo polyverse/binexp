@@ -1,7 +1,6 @@
 package binexp
 
 import (
-	"fmt"
 	"github.com/polyverse/binexp/syntax"
 	"testing"
 )
@@ -164,12 +163,61 @@ func TestRegexByteMatchNext(t *testing.T) {
 		t.Error(err)
 	}
 
+	matches := []int{}
+
 	rawdata := []byte{0x65, 0xca, 0x05, 0xf4, 0x65, 0xca, 0xaf, 0xca, 0x65, 0xff, 0x15, 0x25}
-	for match, err := opcode.FindBytesMatchStartingAt(rawdata, 0); match != nil; match, err = opcode.FindBytesMatchStartingAt(rawdata, match.Index+1) {
+	for match, err := opcode.FindBytesMatchStartingAt(rawdata, 0); match != nil; match, err = opcode.FindNextMatch(match) {
 		if err != nil {
 			t.Error(err)
 		}
 
-		fmt.Printf("%v\n\n", match.Index)
+		matches = append(matches, match.Index)
+	}
+
+	if len(matches) != 2 {
+		t.Fatalf("Expected two non-overlapping matches, but found %d", len(matches))
+	}
+	if matches[0] != 1 {
+		t.Fatalf("First non-overlapping match should be at index 1, found %d", matches[0])
+	}
+
+	if matches[1] != 5 {
+		t.Fatalf("Second non-overlapping match should be at index 5, found %d", matches[1])
+	}
+
+}
+
+func TestRegexByteMatchNextOverlapping(t *testing.T) {
+
+	// Ensure this is a non-UTF-8 compliant string
+	opcode, err := Compile("\xca[\x00-\xff]{2}", syntax.ByteRunes)
+	if err != nil {
+		t.Error(err)
+	}
+
+	matches := []int{}
+
+	rawdata := []byte{0x65, 0xca, 0x05, 0xf4, 0x65, 0xca, 0xaf, 0xca, 0x65, 0xff, 0x15, 0x25}
+	for match, err := opcode.FindBytesMatchStartingAt(rawdata, 0); match != nil; match, err = opcode.FindNextOverlappingMatch(match) {
+		if err != nil {
+			t.Error(err)
+		}
+
+		matches = append(matches, match.Index)
+	}
+
+	if len(matches) != 3 {
+		t.Fatalf("Expected three overlapping matches, but found %d", len(matches))
+	}
+	if matches[0] != 1 {
+		t.Fatalf("First overlapping match should be at index 1, found %d", matches[0])
+	}
+
+	if matches[1] != 5 {
+		t.Fatalf("Second overlapping match should be at index 5, found %d", matches[1])
+	}
+
+	if matches[2] != 7 {
+		t.Fatalf("Third overlapping match should be at index 7, found %d", matches[2])
 	}
 }
